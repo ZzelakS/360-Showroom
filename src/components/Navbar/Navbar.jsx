@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import Logo from '../../../public/logo192.png';
+import Logo from '../../../src/logo192.png';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
