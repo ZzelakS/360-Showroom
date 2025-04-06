@@ -37,7 +37,7 @@ export default function Home() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
       >
-        Explore cars like never before with our **360° interactive experience**. Get a real feel of each car from every angle.
+        Explore cars like never before with our 360° interactive experience. Get a real feel of each car from every angle.
       </motion.p>
 
       {/* Car Grid */}
@@ -53,8 +53,9 @@ export default function Home() {
         {cars.map((car) => (
           <motion.div 
             key={car.id} 
-            className="bg-gray-800 p-5 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
+            className="bg-gray-800 p-5 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer"
             whileHover={{ scale: 1.05 }}
+            onClick={() => navigate(`/product/${car.id}`)}
           >
             <img src={car.image} alt={car.name} className="w-full h-44 object-cover rounded-md mb-3" />
             <h3 className="text-xl font-semibold">{car.name}</h3>
