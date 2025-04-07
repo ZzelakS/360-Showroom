@@ -16,7 +16,7 @@ export default function App() {
     <AuthProvider>
       <Router>
         <Navbar /> {/* ✅ Persisted across all pages */}
-        <div className="pt-4 px-4">
+        <div className="max-w-screen overflow-x-hidden">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/showroom" element={<Showroom />} />
