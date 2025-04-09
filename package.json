@@ -4,12 +4,12 @@
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "homepage": ".",
   "main": "tailwind.config.js",
-    "scripts": {
-      "dev": "vite",
-      "start": "vite",
-      "build": "vite build",
-      "serve": "vite preview"
-    },
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -24,6 +24,7 @@
     "framer-motion": "^12.6.2",
     "lucide-react": "^0.487.0",
     "npx": "^10.2.2",
+    "photo-sphere-viewer": "^4.8.1",
     "react": "^19.0.0",
     "react-360-viewer": "^0.1.0",
     "react-dom": "^19.0.0",
