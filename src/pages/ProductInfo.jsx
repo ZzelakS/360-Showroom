@@ -7,10 +7,9 @@ import ReactPlayer from "react-player";
 import Modal from "react-modal";
 import WalkaroundViewer from "../components/WalkaroundViewer/WalkaroundViewer";
 
-// Three.js imports
-import * as THREE from "three";
-import { VRButton } from "three/examples/jsm/webxr/VRButton.js";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+// Import Photo Sphere Viewer
+import { Viewer } from 'photo-sphere-viewer';
+import 'photo-sphere-viewer/dist/photo-sphere-viewer.css';
 
 const db = getFirestore(app);
 
@@ -19,7 +18,7 @@ export default function ProductInfo() {
   const navigate = useNavigate();
   const [car, setCar] = useState(null);
   const [modalData, setModalData] = useState(null);
-  const [renderer, setRenderer] = useState(null);
+  const [viewer, setViewer] = useState(null);
   const vrContainerRef = useRef();
 
   useEffect(() => {
@@ -38,60 +37,50 @@ export default function ProductInfo() {
   }, [id, navigate]);
 
   useEffect(() => {
-    if (!car || !car.sphereImage) return;
+    if (!car || !car.sphereImage || !vrContainerRef.current) return;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      vrContainerRef.current.clientWidth / vrContainerRef.current.clientHeight,
-      0.1,
-      1000
-    );
-    camera.position.set(0, 0, 0.1);
-
-    const newRenderer = new THREE.WebGLRenderer({ antialias: true });
-    newRenderer.setSize(
-      vrContainerRef.current.clientWidth,
-      vrContainerRef.current.clientHeight
-    );
-    newRenderer.xr.enabled = true;
-
-    vrContainerRef.current.innerHTML = "";
-    vrContainerRef.current.appendChild(newRenderer.domElement);
-
-    const controls = new OrbitControls(camera, newRenderer.domElement);
-    controls.enableZoom = false;
-    controls.enablePan = false;
-
-    const textureLoader = new THREE.TextureLoader();
-    textureLoader.load(car.sphereImage, (texture) => {
-      const geometry = new THREE.SphereGeometry(500, 60, 40);
-      geometry.scale(-1, 1, 1);
-      const material = new THREE.MeshBasicMaterial({ map: texture });
-      const sphere = new THREE.Mesh(geometry, material);
-      scene.add(sphere);
+    const viewer = new Viewer({
+      container: vrContainerRef.current,
+      panorama: car.sphereImage,
+      navbar: [
+        'zoom',
+        'fullscreen', // Add the fullscreen control to the navbar
+        'autorotate',
+      ],
     });
 
-    newRenderer.setAnimationLoop(() => {
-      controls.update();
-      newRenderer.render(scene, camera);
-    });
+    setViewer(viewer);
 
-    setRenderer(newRenderer);
+    // Access internal Three.js renderer and enable XR
+    const threeRenderer = viewer.renderer.renderer; // Three.js WebGLRenderer
+    const canvas = threeRenderer.domElement;
+
+    // Check if browser supports XR
+    if (navigator.xr) {
+      navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
+        if (supported) {
+          const button = document.createElement('button');
+          button.innerText = 'Enter VR';
+          button.style.position = 'absolute';
+          button.style.bottom = '10px';
+          button.style.right = '10px';
+          button.onclick = () => {
+            navigator.xr.requestSession('immersive-vr', { optionalFeatures: ['local-floor'] })
+              .then((session) => {
+                threeRenderer.xr.enabled = true;
+                threeRenderer.xr.setSession(session);
+                viewer.render(); // start rendering
+              });
+          };
+          vrContainerRef.current.appendChild(button);
+        }
+      });
+    }
 
     return () => {
-      newRenderer.setAnimationLoop(null);
+      viewer.destroy();
     };
   }, [car]);
-
-  const openVRMode = async () => {
-    if (renderer) {
-      const session = await navigator.xr.requestSession("immersive-vr", {
-        optionalFeatures: ["local-floor", "bounded-floor"],
-      });
-      renderer.xr.setSession(session);
-    }
-  };
 
   const openModal = (hotspot) => {
     setModalData(hotspot);
@@ -121,10 +110,33 @@ export default function ProductInfo() {
         <>
           <div
             ref={vrContainerRef}
-            className="w-full max-w-3xl h-96 mb-4 bg-black rounded-md"
-          ></div>
+            className="w-full max-w-3xl h-96 mb-4 bg-black rounded-md relative"
+          >
+            {/* Fullscreen Icon
+            <div
+              className="absolute top-4 right-4 text-white cursor-pointer"
+              onClick={() => viewer.requestFullscreen()}
+              title="Toggle Fullscreen"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="w-8 h-8"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 9l3-3-3-3M18 15l3 3-3 3M14 6h6a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h6"
+                />
+              </svg>
+            </div> */}
+          </div>
+
           <button
-            onClick={openVRMode}
+            onClick={() => viewer.startXR()}
             className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded mb-6 text-lg"
           >
             Enter VR Mode
@@ -152,12 +164,12 @@ export default function ProductInfo() {
         <p>No walkaround viewer available for this car.</p>
       )}
 
-      {/* Video Section */}
+      {/* Video Section
       {car.video && (
         <div className="w-full max-w-3xl mb-6">
           <ReactPlayer url={car.video} controls width="100%" height="auto" />
         </div>
-      )}
+      )} */}
 
       <motion.button
         className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg text-lg mt-4"
