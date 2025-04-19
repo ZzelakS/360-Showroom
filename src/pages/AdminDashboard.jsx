@@ -8,304 +8,282 @@ import WalkaroundViewer from "../components/WalkaroundViewer/WalkaroundViewer"; 
 const db = getFirestore(app);
 
 export default function AdminDashboard() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
   const [name, setName] = useState("");
+  const [brand, setBrand] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [sphereImageUrl, setSphereImageUrl] = useState([]); // Now an array
-  const [videoUrl, setVideoUrl] = useState("");
-  const [hotspots, setHotspots] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [cars, setCars] = useState([]);
+  const [sphereImageUrl, setSphereImageUrl] = useState("");
   const [walkaroundIframeUrl, setWalkaroundIframeUrl] = useState("");
-  const [editingId, setEditingId] = useState(null);
-  const [brand, setBrand] = useState("");
-  // const [sphereImageFilename, setSphereImageFilename] = useState("");
-  // const [imageCount, setImageCount] = useState(43); // Set the number of images (e.g., 43 for Lexus)
+  const [mediaType, setMediaType] = useState("car");
+  const [cars, setCars] = useState([]);
+  const [houses, setHouses] = useState([]);
+  const [uploading, setUploading] = useState(false);
 
-  const fetchCars = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, "cars"));
-      const carsData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setCars(carsData);
-    } catch (error) {
-      console.error("Error fetching cars:", error);
-    }
-  };
+  const [hotspots, setHotspots] = useState([]);
+  const [hotspotPitch, setHotspotPitch] = useState("");
+  const [hotspotYaw, setHotspotYaw] = useState("");
+  const [hotspotType, setHotspotType] = useState("link");
+  const [hotspotText, setHotspotText] = useState("");
+  const [hotspotUrl, setHotspotUrl] = useState("");
 
   useEffect(() => {
-    if (!user) {
-      navigate("/login"); // Restrict access if not authenticated
-    } else {
-      fetchCars(); // Call fetchCars after defining it
-    }
-  }, [user, navigate]); // Dependency array
+    const fetchData = async () => {
+      const carsSnapshot = await getDocs(collection(db, "cars"));
+      const carsList = carsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setCars(carsList);
 
-  // Automatically construct the sphere image URL when brand is selected
-useEffect(() => {
-  if (brand) {
-    setSphereImageUrl(`https://zzelaks.github.io/Assets/assets/${brand}/Interior/01.jpg`);
-  } else {
-    setSphereImageUrl("");
-  }
-}, [brand]);
+      const housesSnapshot = await getDocs(collection(db, "houses"));
+      const housesList = housesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setHouses(housesList);
+    };
+    fetchData();
+  }, []);
 
-// Submit new car
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setUploading(true);
-
-  // console.log("Walkaround Images Before Submission:", walkaroundImages);
-
-  // Wait for state to update before submitting
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  try {
-
-    await addDoc(collection(db, "cars"), {
-      name,
-      brand,
-      description,
-      image: imageUrl,
-      sphereImage: sphereImageUrl,
-      // video: videoUrl,
-      iframeUrl: walkaroundIframeUrl,
-      hotspots,
-    });
-
-    alert("Car added successfully!");
-    setName("");
-    setBrand("");
-    setDescription("");
-    setImageUrl("");
-    // setVideoUrl("");
-    setWalkaroundIframeUrl("");
-    setHotspots([]);
-  } catch (error) {
-    console.error("Error adding car:", error);
-  }
-
-  setUploading(false);
-};
-
-
-  // Handle edit button click
-  const handleEdit = (car) => {
-    setEditingId(car.id);
-    setName(car.name);
-    setDescription(car.description);
-    setImageUrl(car.image);
-    setWalkaroundIframeUrl("");
-    // setVideoUrl(car.video);
-    setHotspots(car.hotspots || []);
-  };
-
-  // Delete car
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this car?")) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUploading(true);
 
     try {
-      await deleteDoc(doc(db, "cars", id));
-      alert("Car deleted successfully!");
-      fetchCars(); // Refresh the list
+      if (mediaType === "car") {
+        await addDoc(collection(db, "cars"), {
+          name,
+          brand,
+          description,
+          image: imageUrl,
+          sphereImage: sphereImageUrl,
+          iframeUrl: walkaroundIframeUrl,
+          hotspots,
+        });
+      } else {
+        const imagesArray = sphereImageUrl.split(",").map((url) => url.trim());
+        await addDoc(collection(db, "houses"), {
+          name,
+          description,
+          image: imageUrl,
+          sphereImages: imagesArray,
+        });
+      }
+      alert(`${mediaType === "car" ? "Car" : "House"} added successfully!`);
+      setName("");
+      setBrand("");
+      setDescription("");
+      setImageUrl("");
+      setSphereImageUrl("");
+      setWalkaroundIframeUrl("");
+      setHotspots([]);
     } catch (error) {
-      console.error("Error deleting car:", error);
+      console.error("Error adding data:", error);
+    }
+    setUploading(false);
+  };
+
+  const handleDelete = async (id, type) => {
+    await deleteDoc(doc(db, type, id));
+    if (type === "cars") {
+      setCars(cars.filter((car) => car.id !== id));
+    } else {
+      setHouses(houses.filter((house) => house.id !== id));
     }
   };
 
-  // Add a new hotspot
   const addHotspot = () => {
-    setHotspots([...hotspots, { id: Date.now(), label: "", yaw: 0, pitch: 0 }]);
+    setHotspots([
+      ...hotspots,
+      { pitch: hotspotPitch, yaw: hotspotYaw, type: hotspotType, text: hotspotText, URL: hotspotUrl },
+    ]);
+    setHotspotPitch("");
+    setHotspotYaw("");
+    setHotspotType("link");
+    setHotspotText("");
+    setHotspotUrl("");
   };
 
   return (
-    <div className="p-6 bg-gray-900 text-white min-h-screen font-sans space-y-6">
-      <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <button
-          onClick={logout}
-          className="bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700 transition"
-        >
-          Logout
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
-      {/* Car Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4 bg-gray-800 p-6 rounded-lg shadow-lg"
-      >
-        <input
-          type="text"
-          placeholder="Car Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white"
-          required
-        />
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white"
-          required
-        />
+        <div className="mb-4">
+          <label className="block mb-1">Select Media Type:</label>
+          <select
+            value={mediaType}
+            onChange={(e) => setMediaType(e.target.value)}
+            className="p-2 bg-gray-700 border border-gray-600 rounded text-white"
+          >
+            <option value="car">Car</option>
+            <option value="house">House</option>
+          </select>
+        </div>
 
-        <input
-          type="text"
-          placeholder="Car Brand"
-          value={brand}
-          onChange={(e) => setBrand(e.target.value)}
-          className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
-          required
-        />
-
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
-          required
-        />
-
-        {sphereImageUrl && (
-          <img
-            src={sphereImageUrl}
-            alt="360 View"
-            className="w-40 h-40 object-cover rounded-lg shadow-md"
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
+            required
           />
-        )}
 
-        {/* Render WalkaroundViewer */}
-        {/* {brand && <WalkaroundViewer brand={brand} imageCount={43} />} */}
+          {mediaType === "car" && (
+            <>
+              <input
+                type="text"
+                placeholder="Car Brand"
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+                className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
+                required
+              />
 
-        <input
-          type="text"
-          placeholder="External Walkaround iFrame URL"
-          value={walkaroundIframeUrl}
-          onChange={(e) => setWalkaroundIframeUrl(e.target.value)}
-          className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600"
-        />
-
-        {brand && sphereImageUrl && (
-          <WalkaroundViewer brand={brand} imageUrl={sphereImageUrl} />
-        )}
-
-        {walkaroundIframeUrl && (
-          <div
-          style={{
-            width: "100%",
-            maxWidth: "1000px",
-            height: "1000px", // Increased height
-            margin: "0 auto",
-            overflow: "hidden",
-            borderRadius: "12px",
-            boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-          }}
-        >
-            <iframe
-              src={walkaroundIframeUrl}
-              width="100%"
-              height="100%"
-              style={{ border: "none" }}
-              title="Walkaround Viewer"
-              allowFullScreen
-            />
-          </div>
-        )}
-
-        {/* Video URL
-        <input
-          type="text"
-          placeholder="Video URL"
-          value={videoUrl}
-          onChange={(e) => setVideoUrl(e.target.value)}
-          className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
-          required
-        /> */}
-
-        {/* Hotspots */}
-        <h2 className="text-xl font-bold mt-4">Hotspots</h2>
-        {hotspots.map((hotspot, index) => (
-          <div key={hotspot.id} className="flex space-x-2">
-            <input
-              type="text"
-              placeholder="Label"
-              value={hotspot.label}
-              onChange={(e) => {
-                const newHotspots = [...hotspots];
-                newHotspots[index].label = e.target.value;
-                setHotspots(newHotspots);
-              }}
-              className="p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
-              required
-            />
-            <input
-              type="number"
-              placeholder="Yaw"
-              value={hotspot.yaw}
-              onChange={(e) => {
-                const newHotspots = [...hotspots];
-                newHotspots[index].yaw = parseFloat(e.target.value);
-                setHotspots(newHotspots);
-              }}
-              className="p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
-              required
-            />
-            <input
-              type="number"
-              placeholder="Pitch"
-              value={hotspot.pitch}
-              onChange={(e) => {
-                const newHotspots = [...hotspots];
-                newHotspots[index].pitch = parseFloat(e.target.value);
-                setHotspots(newHotspots);
-              }}
-              className="p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
-              required
-            />
-          </div>
-        ))}
-
-        <button type="button" onClick={addHotspot} className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700">
-          Add Hotspot
-        </button>
-        <button type="submit" className="bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700" disabled={uploading}>
-          {uploading ? "Uploading..." : "Submit"}
-        </button>
-      </form>
-
-      {/* Car List with Delete Option */}
-      <h2 className="text-2xl font-bold mt-6">Car List</h2>
-      {cars.map((car) => (
-        <div key={car.id} className="bg-gray-800 p-4 rounded-lg mt-2">
-          <h2 className="text-xl font-bold">{car.name}</h2>
-          <p>{car.description}</p>
-
-          {car.sphereImage && (
-            <img
-              src={car.sphereImage} // Now dynamic based on Firebase data
-              alt="360 View"
-              className="w-40 h-40 object-cover rounded-lg shadow-md"
-            />
+              <input
+                type="text"
+                placeholder="External Walkaround iFrame URL"
+                value={walkaroundIframeUrl}
+                onChange={(e) => setWalkaroundIframeUrl(e.target.value)}
+                className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600"
+              />
+            </>
           )}
 
-          <div className="flex space-x-2 mt-2">
-            <button onClick={() => handleEdit(car)} className="bg-yellow-600 px-3 py-1 rounded hover:bg-yellow-700">
-              Edit
-            </button>
+          <textarea
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600"
+            required
+          />
 
-            <button onClick={() => handleDelete(car.id)} className="bg-red-600 px-3 py-1 rounded hover:bg-red-700">
-              Delete
-            </button>
-          </div>
+          <input
+            type="text"
+            placeholder="Image URL"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600"
+            required
+          />
+
+          {mediaType === "car" && (
+            <>
+              <input
+                type="text"
+                placeholder="360 Sphere Interior Image URL"
+                value={sphereImageUrl}
+                onChange={(e) => setSphereImageUrl(e.target.value)}
+                className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
+                required
+              />
+
+              <div className="space-y-2">
+                <h3 className="font-semibold">Add Hotspots</h3>
+                <input
+                  type="text"
+                  placeholder="Pitch"
+                  value={hotspotPitch}
+                  onChange={(e) => setHotspotPitch(e.target.value)}
+                  className="p-2 rounded bg-gray-700 border border-gray-600 w-full"
+                />
+                <input
+                  type="text"
+                  placeholder="Yaw"
+                  value={hotspotYaw}
+                  onChange={(e) => setHotspotYaw(e.target.value)}
+                  className="p-2 rounded bg-gray-700 border border-gray-600 w-full"
+                />
+                <select
+                  value={hotspotType}
+                  onChange={(e) => setHotspotType(e.target.value)}
+                  className="p-2 bg-gray-700 border border-gray-600 rounded w-full"
+                >
+                  <option value="link">Link</option>
+                  <option value="info">Info</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder="Text"
+                  value={hotspotText}
+                  onChange={(e) => setHotspotText(e.target.value)}
+                  className="p-2 rounded bg-gray-700 border border-gray-600 w-full"
+                />
+                <input
+                  type="text"
+                  placeholder="URL"
+                  value={hotspotUrl}
+                  onChange={(e) => setHotspotUrl(e.target.value)}
+                  className="p-2 rounded bg-gray-700 border border-gray-600 w-full"
+                />
+                <button
+                  type="button"
+                  onClick={addHotspot}
+                  className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  Add Hotspot
+                </button>
+              </div>
+            </>
+          )}
+
+          {mediaType === "house" && (
+            <>
+              <label className="block font-semibold">360 Interior Image URLs (comma separated)</label>
+              <input
+                type="text"
+                placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+                value={sphereImageUrl}
+                onChange={(e) => setSphereImageUrl(e.target.value)}
+                className="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
+                required
+              />
+            </>
+          )}
+
+          <button
+            type="submit"
+            className="bg-green-600 px-4 py-2 rounded hover:bg-green-700"
+            disabled={uploading}
+          >
+            {uploading ? "Uploading..." : "Submit"}
+          </button>
+        </form>
+
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold mb-4">Cars</h2>
+          <ul className="space-y-2">
+            {cars.map((car) => (
+              <li key={car.id} className="bg-gray-800 p-4 rounded">
+                <div className="flex justify-between items-center">
+                  <span>{car.name} - {car.brand}</span>
+                  <button
+                    onClick={() => handleDelete(car.id, "cars")}
+                    className="bg-red-600 px-3 py-1 rounded hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
-      ))}
+
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold mb-4">Houses</h2>
+          <ul className="space-y-2">
+            {houses.map((house) => (
+              <li key={house.id} className="bg-gray-800 p-4 rounded">
+                <div className="flex justify-between items-center">
+                  <span>{house.name}</span>
+                  <button
+                    onClick={() => handleDelete(house.id, "houses")}
+                    className="bg-red-600 px-3 py-1 rounded hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

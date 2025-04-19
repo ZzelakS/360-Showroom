@@ -29,11 +29,10 @@ export default function VRScene() {
     if (btn) {
       const handleClick = () => navigate(`/product/${id}`);
       btn.addEventListener("click", handleClick);
-  
+
       return () => btn.removeEventListener("click", handleClick);
     }
   }, [id, navigate]);
-  
 
   useEffect(() => {
     if (!window.AFRAME) {
@@ -56,7 +55,7 @@ export default function VRScene() {
         <a-assets>
           <img id="vr-sphere" src={car.sphereImage} crossOrigin="anonymous" />
         </a-assets>
-  
+
         {/* Camera + Cursor for interactivity */}
         <a-entity position="0 1.6 0">
           <a-camera>
@@ -68,10 +67,14 @@ export default function VRScene() {
             ></a-cursor>
           </a-camera>
         </a-entity>
-  
+
         {/* 360 Background */}
-        <a-sky src="#vr-sphere" rotation="0 -130 0"></a-sky>
-  
+        <a-sky
+          src="#vr-sphere"
+          rotation="0 -130 0"
+          animation="property: rotation; to: 0 230 0; loop: true; dur: 50000; easing: linear"
+        ></a-sky>
+
         {/* Interactive Back Button */}
         <a-entity
           id="backButton"
@@ -85,5 +88,4 @@ export default function VRScene() {
       </a-scene>
     </div>
   );
-  
 }
