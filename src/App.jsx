@@ -10,6 +10,7 @@ import AdminDashboard from "../src/pages/AdminDashboard";
 import Login from "../src/pages/Login";
 import Products from "../src/pages/Products";
 import ProtectedRoute from "./ProtectedRoute";
+import VRScene from "./pages/VRScene";
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
             <Route path="/product/:id" element={<ProductInfo />} />
             <Route path="/products" element={<Products />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/vr-view/:id" element={<VRScene />} />
             <Route
               path="/admin"
               element={

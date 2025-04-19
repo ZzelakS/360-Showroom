@@ -136,11 +136,12 @@ export default function ProductInfo() {
           </div>
 
           <button
-            onClick={() => viewer.startXR()}
-            className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded mb-6 text-lg"
-          >
-            Enter VR Mode
-          </button>
+  onClick={() => navigate(`/vr-view/${id}`)}
+  className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded mb-6 text-lg"
+>
+  Enter VR Mode
+</button>
+
         </>
       ) : (
         <motion.img
