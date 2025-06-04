@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<settings>
+  <projectName>NewProject3</projectName>
+  <projectConfig>C:\Users\VR PLACE\Desktop\NewProject3\NewProject3.xml</projectConfig>
+  <interface>
+    <clipboxPreview>True</clipboxPreview>
+    <clipboxFitImages>False</clipboxFitImages>
+    <showCenterGuide>True</showCenterGuide>
+    <showGridGuide>False</showGridGuide>
+    <showImageEdges>True</showImageEdges>
+    <showToolbarGuide>False</showToolbarGuide>
+    <lockWatermarks>False</lockWatermarks>
+    <spotWheelSpeedDown>False</spotWheelSpeedDown>
+    <hideInactiveSpotPath>False</hideInactiveSpotPath>
+    <hideInactiveSpot>False</hideInactiveSpot>
+    <showSpotMagnify>False</showSpotMagnify>
+    <spotMagnifyZoom>2</spotMagnifyZoom>
+    <useAutoPath>False</useAutoPath>
+  </interface>
+  <publishing>
+    <publishPath>C:\Users\VR PLACE\Desktop\NewProject3\published</publishPath>
+    <viewName>NewProject3</viewName>
+    <skinType>0</skinType>
+    <viewerWidth>600</viewerWidth>
+    <viewerHeight>450</viewerHeight>
+    <imageScale>0.15</imageScale>
+    <imageFormat>1</imageFormat>
+    <jpgQuality>100</jpgQuality>
+    <jpgQualityHighres>100</jpgQualityHighres>
+    <webpQuality>90</webpQuality>
+    <webpQualityHighres>90</webpQualityHighres>
+    <cropMarginScale>4</cropMarginScale>
+    <cropMarginTop>0</cropMarginTop>
+    <cropMarginLeft>0</cropMarginLeft>
+    <cropMarginBottom>0</cropMarginBottom>
+    <cropMarginRight>0</cropMarginRight>
+    <cropFillColor>-1</cropFillColor>
+    <viewerBackColor>-1</viewerBackColor>
+    <hideWatermarks>False</hideWatermarks>
+    <fittedImages>True</fittedImages>
+    <skipImagePublishing>False</skipImagePublishing>
+    <launchLocalBrowser>True</launchLocalBrowser>
+    <launchRemotelBrowser>False</launchRemotelBrowser>
+    <testBrowser>Google Chrome</testBrowser>
+    <publishTemplate>Responsive</publishTemplate>
+    <loopGif>True</loopGif>
+    <publishGifPath>
+    </publishGifPath>
+    <gifLoopPeriod>0</gifLoopPeriod>
+    <gifQuality>16</gifQuality>
+    <launchGifInBrowser>True</launchGifInBrowser>
+    <zipFolder>
+    </zipFolder>
+    <zipSKU>
+    </zipSKU>
+    <zipFolderOpen>True</zipFolderOpen>
+    <zipForAmazon>False</zipForAmazon>
+    <zipImgQuality>94</zipImgQuality>
+    <zipFormat>1</zipFormat>
+    <zipReverseOrder>False</zipReverseOrder>
+    <useGAEventTracking>False</useGAEventTracking>
+    <addGATrackingScript>False</addGATrackingScript>
+    <GATrackingAlias>
+    </GATrackingAlias>
+    <GATrackingScriptId>
+    </GATrackingScriptId>
+    <createPixriotMeta>True</createPixriotMeta>
+    <projectFileMonitor>False</projectFileMonitor>
+  </publishing>
+  <canvas />
+  <effects />
+  <connections>
+    <activeConnection>Do not upload</activeConnection>
+  </connections>
+  <hotspots />
+</settings>

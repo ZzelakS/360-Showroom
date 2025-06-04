@@ -1,0 +1,61 @@
+{
+  "name": "360",
+  "version": "1.0.0",
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "homepage": ".",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@egjs/view360": "^3.6.4",
+    "@photo-sphere-viewer/core": "^5.12.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@webrotate360/imagerotator": "^5.2.22",
+    "aframe": "^1.7.0",
+    "aframe-extras": "^7.5.4",
+    "firebase": "^11.5.0",
+    "framer-motion": "^12.6.2",
+    "lucide-react": "^0.487.0",
+    "npx": "^10.2.2",
+    "panolens": "^0.12.1",
+    "photo-sphere-viewer": "^4.8.1",
+    "react": "^19.0.0",
+    "react-360-viewer": "^0.1.0",
+    "react-dom": "^19.0.0",
+    "react-image-360": "^1.0.1",
+    "react-modal": "^3.16.3",
+    "react-photo-sphere-viewer": "^6.0.1",
+    "react-player": "^2.16.0",
+    "react-router-dom": "^7.4.0",
+    "react-scripts": "^5.0.1",
+    "three": "^0.174.0"
+  },
+  "resolutions": {
+    "three": "^0.155.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.3.3",
+    "vite": "^6.2.5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
